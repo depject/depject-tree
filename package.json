@@ -9,6 +9,7 @@
   },
   "dependencies": {},
   "devDependencies": {},
+  "bin":"./index.js",
   "scripts": {
     "test": "set -e; for t in test/*.js; do node $t; done"
   },
