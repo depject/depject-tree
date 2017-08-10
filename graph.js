@@ -22,6 +22,7 @@ module.exports = function (deps) {
 }
 
 function dot (s) {
+  return JSON.stringify(s)
   return s.replace('.js', '_JS').replace(/-/g, '_').replace(/\.|\//g, '_')
 }
 
@@ -35,8 +36,8 @@ function toDot(a, b, name) {
 
   log('digraph ' + (name || 'depject') + ' {')
 
-  for(var k in a) log('  ', dot(k), '[label="'+dot(k)+'"]')
-  for(var k in b) log('  ', dot(k), '[label="'+dot(k)+'", shape="box"]')
+  for(var k in a) log('  ', dot(k), '[label='+dot(k)+']')
+  for(var k in b) log('  ', dot(k), '[label='+dot(k)+', shape="box"]')
   for(var k in a)
     for(var i = 0; i < a[k].length; i++)
       if(k && a[k][i])
