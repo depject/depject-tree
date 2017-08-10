@@ -14,8 +14,14 @@ function Filter (stat) {
 function Map (stat) {
   try {
     var m = require(stat.path)
-    if(isDepject(m))
+    if(isDepject(m)) {
+      if('string' === typeof m.gives) {
+        var o = {}
+        o[m.gives] = true
+        return {gives: o, needs: m.needs}
+      }
       return m
+    }
   } catch (err) {
     return err.message
   }
@@ -41,54 +47,57 @@ function walk (dir, filter, map) {
   return o
 }
 
-var files = {}
-var dirs = process.argv.slice(2)
-if(!dirs.length) dirs = [process.cwd()]
+module.exports = function (dirs) {
+  if('string' == typeof dirs) dirs = [dirs]
 
-dirs.forEach(function (dir) {
-  walk(
-    path.resolve(process.cwd(), dir),
-    Filter,
-    function (e) {
-      files[e.path] = Map(e)
+  var files = {}
+  dirs.forEach(function (dir) {
+    walk(
+      path.resolve(process.cwd(), dir),
+      Filter,
+      function (e) {
+        files[e.path] = Map(e)
+      }
+    )
+  })
+  var _files = files; files = {}
+  for(var k in _files)
+    files[path.relative(process.cwd(), k)] = _files[k]
+
+  var N = require('libnested')
+
+  return N.map(files, function (value, path) {
+    var last = path[path.length - 1]
+    if(path[1] == 'gives') {
+      if('string' === typeof value) {
+        path.push(value)
+      }
+      var needed = []
+      for(var k in files) {
+        var m = files[k]
+        if(m && m.needs && N.get(m.needs, path.slice(2)))
+          needed.push(k)
+      }
+      return needed
     }
-  )
-})
-var _files = files; files = {}
-for(var k in _files)
-  files[path.relative(process.cwd(), k)] = _files[k]
-
-var N = require('libnested')
-
-var files = N.map(files, function (value, path) {
-  var last = path[path.length - 1]
-  if(path[1] == 'gives') {
-    if('string' === typeof value)
-      path.push(value)
-//    return value
-    var needed = []
-    for(var k in files) {
-      var m = files[k]
-      if(m && m.needs && N.get(m.needs, path.slice(2)))
-        needed.push(k)
+    else if(path[1] == 'needs') {
+      var given = []
+      for(var k in files) {
+        var m = files[k]
+        if(m && m.gives && path && N.get(m.gives, path.slice(2)))
+          given.push(k)
+      }
+      return given
     }
-    return needed
-  }
-  else if(path[1] == 'needs') {
-    var given = []
-    for(var k in files) {
-      var m = files[k]
-      if(m && m.gives && N.get(m.gives, path.slice(2)))
-        given.push(k)
-    }
-    return given
-  }
+  })
+}
 
-})
+if(!module.parent) {
+  var dirs = process.argv.slice(2)
+  if(!dirs.length) dirs = [process.cwd()]
 
-console.log(JSON.stringify(files, null, 2))
-process.exit(0)
-
-
+  console.log(JSON.stringify(module.exports(dirs), null, 2))
+  process.exit(0)
+}
 
 
