@@ -1,7 +1,7 @@
 {
   "name": "depject-tree",
   "description": "",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "https://github.com/dominictarr/depject-tree",
   "repository": {
     "type": "git",
@@ -9,7 +9,7 @@
   },
   "dependencies": {},
   "devDependencies": {},
-  "bin":"./index.js",
+  "bin": "./index.js",
   "scripts": {
     "test": "set -e; for t in test/*.js; do node $t; done"
   },
