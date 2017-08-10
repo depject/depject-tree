@@ -2,6 +2,10 @@
 
 tool for showing all dependencies in a depject project (or projects)
 
+indirection can be useful for decoupling (and thus modularity)
+but this indirection can make code harder to understand if
+there are no tools to show you the routes things take.
+
 ## usage
 
 ```
