@@ -1,5 +1,8 @@
 #! /usr/bin/env node
 
+window = {}
+document = {}
+
 var fs = require('fs')
 var path = require('path')
 var isDepject = require('depject/is')
